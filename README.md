@@ -43,40 +43,56 @@ node dist/cli.js dev /path/to/project -o "Objective description"
 -o, --objective <text>   Objective for the role (default: "Analyze project structure")
 ```
 
-### Output
+### Logging
 
-Pipeline prints each stage:
+Pipeline logs via **pino**:
+- **Dev:** Colorized output via pino-pretty (readable)
+- **Prod:** JSON structured logs (machine-parseable)
+
+Control logging level:
+
+```bash
+# Debug level (verbose)
+LOG_LEVEL=debug node dist/cli.js dev .
+
+# Info level (default)
+node dist/cli.js dev .
+
+# Production mode (JSON)
+NODE_ENV=production node dist/cli.js dev .
+```
+
+### Output Example
 
 ```
-========== HARNESS v0 PIPELINE ==========
+[2026-07-12 01:17:58.160 -0300] [32mINFO[39m: [36mPipeline starting[39m
+    projectPath: "."
+    objective: "Test logging"
 
-→ STAGE 1: PROJECT LOADING
-[ProjectLoader] Loading project from: .
-[ProjectLoader] Identified: harness
-[ProjectLoader] Technologies: TypeScript
-[ProjectLoader] Package manager: pnpm
-[ProjectLoader] ✓ Project loaded
+[2026-07-12 01:17:58.160 -0300] [32mINFO[39m: [36mLoading project[39m
+    path: "."
 
-→ STAGE 2: CONTEXT BUILDING
-[ContextBuilder] Building context for objective: Analyze project
-[ContextBuilder] Loaded 3 files, identified 1 conventions, 2 constraints
-[ContextBuilder] ✓ Context built
+[2026-07-12 01:17:58.163 -0300] [32mINFO[39m: [36mProject identified[39m
+    technologies: ["TypeScript"]
+    packageManager: "pnpm"
+    scriptsCount: 5
 
-→ STAGE 3: ROLE EXECUTION
-[RoleRunner] Running role: dev
-[Dev Role] Executing for project: harness
-[Dev Role] Objective: Analyze project
-[Dev Role] Technologies: TypeScript
-...
+[2026-07-12 01:17:58.164 -0300] [32mINFO[39m: [36mBuilding context[39m
+    objective: "Test logging"
 
-→ STAGE 4: MEMORY PERSISTENCE
-[MemoryWriter] Persisting 3 knowledge artifacts
-[MemoryWriter] Persisted: convention-2026-07-12T03-08-57-295Z.md
-[MemoryWriter] Persisted: convention-2026-07-12T03-08-57-296Z.md
-[MemoryWriter] Persisted: learning-2026-07-12T03-08-57-296Z.md
-[MemoryWriter] ✓ Knowledge persisted
+[2026-07-12 01:17:58.165 -0300] [32mINFO[39m: [36mContext built[39m
+    filesLoaded: 4
+    conventionsDetected: 1
+    constraintsIdentified: 2
 
-========== PIPELINE COMPLETE ==========
+[2026-07-12 01:17:58.165 -0300] [32mINFO[39m: [36mRunning role[39m
+    role: "dev"
+
+[2026-07-12 01:17:58.168 -0300] [32mINFO[39m: [36mAll artifacts persisted[39m
+    count: 3
+
+[2026-07-12 01:17:58.168 -0300] [32mINFO[39m: [36mPipeline complete[39m
+    status: "success"
 ```
 
 ---
@@ -347,21 +363,25 @@ For detailed architecture: see `docs/ARCHITECTURE_DECISIONS.md` (10 ADRs) and `d
 - `src/core/` — Core components (ProjectLoader, ContextBuilder, WorkflowEngine, RoleRunner, MemoryWriter)
 - `src/core/contracts/` — Public interfaces (what each component promises)
 - `src/roles/dev/` — Dev role implementation
+- `src/utils/logger.ts` — Structured logging (pino)
 - `src/cli.ts` — CLI entry point
 
 ### Documentation
-- `README.md` — This file
+- `README.md` — This file (usage, validation, cases, proof)
 - `docs/ARCHITECTURE_METHOD.md` — Reusable method for architecture design
 - `docs/ARCHITECTURE_DECISIONS.md` — 10 ADRs explaining design choices
 - `docs/HARNESS_V0_REVIEW.md` — Review of v0 experiment, limitations, next steps
 - `CLAUDE.md` — Project configuration for Claude Code
 
 ### Configuration
-- `package.json` — Dependencies, scripts
+- `package.json` — Dependencies (commander, pino, zod), scripts
 - `tsconfig.json` — TypeScript strict mode
 - `.eslintrc.js` — Linting rules
 - `.prettierrc` — Code formatting
 - `.gitignore` — Git ignore patterns
+
+### Artifacts
+- `memory/` — Generated knowledge artifacts (created on first run)
 
 ---
 
