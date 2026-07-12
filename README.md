@@ -2,7 +2,9 @@
 
 An experimental orchestration engine for organizational roles. Validates a modular architecture that coordinates execution of distinct organizational behaviors (Dev, QA, Product, etc.) without tight coupling.
 
-**Current Status:** v0 — Architecture validated through implementation. Pipeline executes end-to-end. Ready for testing on real projects.
+**Current Status:** v0 — Architecture validated. Pipeline executes end-to-end. A conceptual-discovery cycle produced an Architectural Radar of improvement opportunities (not yet implemented).
+
+**→ Resuming the project? Start at [`docs/PROJECT_STATE.md`](docs/PROJECT_STATE.md)** — the single entry point: current state, what's validated vs. hypothesis, the Radar, and where to continue.
 
 **Repository:** https://github.com/carlaherrera/harness
 

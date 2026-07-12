@@ -34,6 +34,14 @@ export class ProjectLoader implements IProjectLoader {
       scriptsCount: Object.keys(scripts).length,
       filesFound: Object.keys(files).length,
     })
+
+    logger.debug({
+      msg: 'Project metadata complete',
+      structure: Object.keys(structure).length > 0 ? Object.keys(structure).slice(0, 10) : 'empty',
+      files,
+      scripts: Object.keys(scripts),
+    })
+
     return result
   }
 

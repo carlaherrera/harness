@@ -6,7 +6,11 @@ Motor reutilizável de orquestração de papéis organizacionais. Coordena a exe
 
 ## Status
 
-✓ v0 completo. Arquitetura validada. Pronto para experimentos.
+✓ v0 completo. Arquitetura validada. Ciclo de descoberta conceitual encerrado.
+
+**Ponto de entrada ao retomar:** `docs/PROJECT_STATE.md` (âncora — estado, próximo ciclo, ponto de retomada).
+
+Último ciclo produziu o **Radar Arquitetural** (`docs/ARCHITECTURAL_RADAR.md`): 7 oportunidades de melhoria descobertas por análise epistemológica do pipeline. É referência, não backlog — revisitar quando surgirem organicamente. Única decisão firme: ContextBuilder organiza, Roles interpretam (`docs/ARCHITECTURAL_DECISION_CONTEXT_RESPONSIBILITY.md`).
 
 ## Stack
 
@@ -119,4 +123,4 @@ memory/               # Artifacts gerados (criado em runtime)
 
 Ver `docs/HARNESS_V0_REVIEW.md` seção "Próximos Experimentos Sugeridos" (8 prioridades).
 
-Atualizado: 2026-07-12 14:00
+Atualizado: 2026-07-12 03:30
