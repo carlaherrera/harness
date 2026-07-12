@@ -1,14 +1,16 @@
 import { logger } from '../../utils/logger.js'
 import type { IWorkflowEngine } from '../contracts/workflow-engine.js'
+import type { RoleType } from '../contracts/role-runner.js'
 import { ProjectLoader } from '../project-loader/index.js'
 import { ContextBuilder } from '../context-builder/index.js'
 import { RoleRunner } from '../role-runner/index.js'
 import { MemoryWriter } from '../memory-writer/index.js'
 
 export class WorkflowEngine implements IWorkflowEngine {
-  async execute(projectPath: string, objective: string): Promise<void> {
+  async execute(projectPath: string, objective: string, roles: RoleType | RoleType[] = 'dev'): Promise<void> {
     try {
-      logger.info({ msg: 'Pipeline starting', projectPath, objective })
+      const roleList = Array.isArray(roles) ? roles : [roles]
+      logger.info({ msg: 'Pipeline starting', projectPath, objective, roles: roleList })
 
       // Stage 1: Project Loading
       const projectLoader = new ProjectLoader()
@@ -18,16 +20,21 @@ export class WorkflowEngine implements IWorkflowEngine {
       const contextBuilder = new ContextBuilder()
       const context = await contextBuilder.build(metadata, objective)
 
-      // Stage 3: Role Execution
+      // Stage 3: Sequential Role Execution
       const roleRunner = new RoleRunner()
-      const roleOutput = await roleRunner.run(context, 'dev')
-
-      // Stage 4: Memory Persistence
       const memoryWriter = new MemoryWriter()
-      const artifacts = roleOutput.artifacts || []
-      await memoryWriter.write(artifacts)
 
-      logger.info({ msg: 'Pipeline complete', status: 'success' })
+      for (const role of roleList) {
+        logger.info({ msg: 'Executing role', role })
+        const roleOutput = await roleRunner.run(context, role)
+
+        // Stage 4: Memory Persistence (after each role)
+        const artifacts = roleOutput.artifacts || []
+        await memoryWriter.write(artifacts)
+        logger.info({ msg: 'Role complete and artifacts persisted', role, artifactCount: artifacts.length })
+      }
+
+      logger.info({ msg: 'Pipeline complete', status: 'success', rolesExecuted: roleList })
     } catch (error) {
       logger.error({
         msg: 'Pipeline failed',

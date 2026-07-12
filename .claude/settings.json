@@ -1,0 +1,9 @@
+{
+  "skillOverrides": {
+    "ecc/typescript/coding-style": "off",
+    "ecc/typescript/hooks": "off",
+    "ecc/typescript/patterns": "off",
+    "ecc/typescript/security": "off",
+    "ecc/typescript/testing": "off"
+  }
+}

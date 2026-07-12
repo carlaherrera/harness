@@ -1,7 +1,7 @@
 import type { Context } from './context-builder'
 import type { KnowledgeArtifact } from './memory-writer'
 
-export type RoleType = 'dev'
+export type RoleType = 'dev' | 'architect'
 
 export interface RoleOutput {
   role: RoleType

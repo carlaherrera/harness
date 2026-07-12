@@ -2,6 +2,7 @@
 
 import { Command } from 'commander'
 import { WorkflowEngine } from './core/workflow-engine/index.js'
+import type { RoleType } from './core/contracts/role-runner.js'
 
 const program = new Command()
 
@@ -17,7 +18,35 @@ program
   .action(async (projectPath = process.cwd(), options) => {
     try {
       const engine = new WorkflowEngine()
-      await engine.execute(projectPath, options.objective)
+      await engine.execute(projectPath, options.objective, 'dev')
+    } catch (error) {
+      process.exit(1)
+    }
+  })
+
+program
+  .command('architect [projectPath]')
+  .description('Run the Architect role on a project')
+  .option('-o, --objective <objective>', 'Objective for the Architect role', 'Analyze project architecture')
+  .action(async (projectPath = process.cwd(), options) => {
+    try {
+      const engine = new WorkflowEngine()
+      await engine.execute(projectPath, options.objective, 'architect')
+    } catch (error) {
+      process.exit(1)
+    }
+  })
+
+program
+  .command('multi [projectPath]')
+  .description('Run multiple roles sequentially on a project')
+  .option('-o, --objective <objective>', 'Objective for analysis', 'Analyze project')
+  .option('-r, --roles <roles...>', 'Roles to execute in sequence', ['dev'])
+  .action(async (projectPath = process.cwd(), options) => {
+    try {
+      const roles = options.roles as RoleType[]
+      const engine = new WorkflowEngine()
+      await engine.execute(projectPath, options.objective, roles)
     } catch (error) {
       process.exit(1)
     }

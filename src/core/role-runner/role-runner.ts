@@ -2,6 +2,7 @@ import { logger } from '../../utils/logger.js'
 import type { Context } from '../contracts/context-builder.js'
 import type { RoleType, RoleOutput, IRoleRunner } from '../contracts/role-runner.js'
 import { DevRole } from '../../roles/dev/index.js'
+import { ArchitectRole } from '../../roles/architect/index.js'
 
 export class RoleRunner implements IRoleRunner {
   async run(context: Context, role: RoleType): Promise<RoleOutput> {
@@ -11,6 +12,10 @@ export class RoleRunner implements IRoleRunner {
       case 'dev': {
         const devRole = new DevRole()
         return devRole.execute(context)
+      }
+      case 'architect': {
+        const architectRole = new ArchitectRole()
+        return architectRole.execute(context)
       }
       default: {
         throw new Error(`Unknown role: ${role}`)
