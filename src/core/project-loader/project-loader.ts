@@ -1,10 +1,11 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
+import { logger } from '../../utils/logger.js'
 import type { ProjectMetadata, IProjectLoader, DirectoryStructure, RelevantFiles, ScriptMap } from '../contracts/project-loader.js'
 
 export class ProjectLoader implements IProjectLoader {
   async load(projectPath: string): Promise<ProjectMetadata> {
-    console.log(`[ProjectLoader] Loading project from: ${projectPath}`)
+    logger.info({ msg: 'Loading project', path: projectPath })
 
     const structure = await this.buildDirectoryStructure(projectPath)
     const files = await this.findRelevantFiles(projectPath)
@@ -25,10 +26,14 @@ export class ProjectLoader implements IProjectLoader {
       mainFramework,
     }
 
-    console.log(`[ProjectLoader] Identified: ${name}`)
-    console.log(`[ProjectLoader] Technologies: ${technologies.join(', ') || 'none'}`)
-    console.log(`[ProjectLoader] Package manager: ${packageManager}`)
-    console.log('[ProjectLoader] ✓ Project loaded')
+    logger.info({
+      msg: 'Project identified',
+      name,
+      technologies,
+      packageManager,
+      scriptsCount: Object.keys(scripts).length,
+      filesFound: Object.keys(files).length,
+    })
     return result
   }
 

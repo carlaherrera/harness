@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
+import { logger } from '../../utils/logger.js'
 import type { KnowledgeArtifact, IMemoryWriter } from '../contracts/memory-writer.js'
 
 export class MemoryWriter implements IMemoryWriter {
@@ -10,11 +11,10 @@ export class MemoryWriter implements IMemoryWriter {
   }
 
   async write(artifacts: KnowledgeArtifact[]): Promise<void> {
-    console.log(`[MemoryWriter] Persisting ${artifacts.length} knowledge artifacts`)
+    logger.info({ msg: 'Persisting artifacts', count: artifacts.length })
 
     if (artifacts.length === 0) {
-      console.log('[MemoryWriter] No artifacts to persist')
-      console.log('[MemoryWriter] ✓ Knowledge persisted')
+      logger.info({ msg: 'No artifacts to persist' })
       return
     }
 
@@ -31,10 +31,10 @@ export class MemoryWriter implements IMemoryWriter {
         const content = this.formatArtifact(artifact)
         await fs.writeFile(filepath, content, 'utf-8')
 
-        console.log(`[MemoryWriter] Persisted: ${filename}`)
+        logger.debug({ msg: 'Artifact persisted', filename, type: artifact.type })
       }
 
-      console.log('[MemoryWriter] ✓ Knowledge persisted')
+      logger.info({ msg: 'All artifacts persisted', count: artifacts.length })
     } catch (error) {
       throw new Error(
         `Failed to write memory artifacts: ${error instanceof Error ? error.message : String(error)}`

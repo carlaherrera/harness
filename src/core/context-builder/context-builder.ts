@@ -1,11 +1,12 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
+import { logger } from '../../utils/logger.js'
 import type { Context, IContextBuilder, ConventionSet, FileContent } from '../contracts/context-builder.js'
 import type { ProjectMetadata } from '../contracts/project-loader.js'
 
 export class ContextBuilder implements IContextBuilder {
   async build(metadata: ProjectMetadata, objective: string): Promise<Context> {
-    console.log(`[ContextBuilder] Building context for objective: ${objective}`)
+    logger.info({ msg: 'Building context', objective })
 
     const relevantFiles = await this.readRelevantFiles(metadata)
     const conventions = this.detectConventions(metadata, relevantFiles)
@@ -21,10 +22,12 @@ export class ContextBuilder implements IContextBuilder {
       conventions,
     }
 
-    console.log(
-      `[ContextBuilder] Loaded ${relevantFiles.length} files, identified ${Object.keys(conventions).length} conventions, ${constraints.length} constraints`
-    )
-    console.log('[ContextBuilder] ✓ Context built')
+    logger.info({
+      msg: 'Context built',
+      filesLoaded: relevantFiles.length,
+      conventionsDetected: Object.keys(conventions).length,
+      constraintsIdentified: constraints.length,
+    })
     return result
   }
 

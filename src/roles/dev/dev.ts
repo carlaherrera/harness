@@ -1,38 +1,36 @@
+import { logger } from '../../utils/logger.js'
 import type { Context } from '../../core/contracts/context-builder.js'
 import type { RoleOutput, RoleType } from '../../core/contracts/role-runner.js'
 import type { KnowledgeArtifact } from '../../core/contracts/memory-writer.js'
 
 export class DevRole {
   async execute(context: Context): Promise<RoleOutput> {
-    console.log(`[Dev Role] Executing for project: ${context.project.name}`)
-    console.log(`[Dev Role] Objective: ${context.objective}`)
+    logger.info({ msg: 'Dev role executing', project: context.project.name, objective: context.objective })
 
     // Analyze project structure
-    console.log(`[Dev Role] Technologies: ${context.technologies.join(', ') || 'none'}`)
-    console.log(`[Dev Role] Package manager: ${context.project.packageManager}`)
-    console.log(`[Dev Role] Available scripts: ${Object.keys(context.project.scripts).join(', ') || 'none'}`)
+    logger.debug({
+      msg: 'Analyzing project',
+      technologies: context.technologies,
+      packageManager: context.project.packageManager,
+      scripts: Object.keys(context.project.scripts),
+    })
 
     // Report conventions
     if (Object.keys(context.conventions).length > 0) {
-      console.log('[Dev Role] Detected conventions:')
-      for (const [key, value] of Object.entries(context.conventions)) {
-        console.log(`  - ${key}: ${value}`)
-      }
+      logger.debug({ msg: 'Conventions detected', conventions: context.conventions })
     }
 
     // Report constraints
     if (context.constraints.length > 0) {
-      console.log('[Dev Role] Constraints:')
-      for (const constraint of context.constraints) {
-        console.log(`  - ${constraint}`)
-      }
+      logger.debug({ msg: 'Constraints identified', constraints: context.constraints })
     }
 
     // Report loaded files
-    console.log(`[Dev Role] Context includes ${context.relevantFiles.length} files:`)
-    for (const file of context.relevantFiles) {
-      console.log(`  - ${file.name} (${file.relevance})`)
-    }
+    logger.debug({
+      msg: 'Files analyzed',
+      count: context.relevantFiles.length,
+      files: context.relevantFiles.map((f) => ({ name: f.name, relevance: f.relevance })),
+    })
 
     // Extract knowledge artifacts: identify learned patterns
     const artifacts: KnowledgeArtifact[] = []
@@ -82,7 +80,11 @@ export class DevRole {
       artifacts,
     }
 
-    console.log(`[Dev Role] ✓ Analysis complete (${artifacts.length} artifacts identified)`)
+    logger.info({
+      msg: 'Dev role analysis complete',
+      artifactsIdentified: artifacts.length,
+      status: 'analyzed',
+    })
     return result
   }
 }
