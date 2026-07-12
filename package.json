@@ -1,0 +1,30 @@
+{
+  "name": "harness",
+  "version": "0.1.0",
+  "description": "Orchestration engine for organizational roles",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "harness": "dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/cli.ts",
+    "build": "tsc",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
