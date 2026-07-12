@@ -211,53 +211,25 @@ Implementar um componente por milestone torna cada impacto isolável e compreens
 
 ## Próximos Experimentos Sugeridos
 
-### Prioridade 1: Validar Execução de Ações
-**Experimento:** Dev Role que gera código simples (ex: criar arquivo vazio).
-- Questão: Como Roles fazem ações mutativas?
-- Escopo: Criar novo componente "ActionExecutor" ou integrar em Role?
-- Saída: Padrão validado para Dev Role gerar artefatos.
+O objetivo agora é validar o Harness em **projetos reais**. Apenas três experimentos são prioritários:
 
-### Prioridade 2: Validar Feedback Loop
-**Experimento:** ContextBuilder carrega artifacts anteriores e passa para Dev Role.
-- Questão: Como conhecimento acumulado influencia análise?
-- Escopo: Dev Role reporta diferenças vs. estado anterior.
-- Saída: Mecanismo de aprendizado incremental validado.
+### Prioridade 1: Validação em Projetos Reais
+**Experimento:** Executar Harness em 3-5 projetos diferentes (Node.js, Next.js, Python, etc.).
+- **Questão:** ProjectLoader detecta corretamente? ContextBuilder captura convenções? Dev Role análise é útil?
+- **Escopo:** Rodar Harness, verificar artifacts gerados, avaliar qualidade.
+- **Saída:** Hipóteses validadas ou refutadas através de evidência prática.
 
-### Prioridade 3: Implementar QA Role
-**Experimento:** Segundo papel (QA) que valida projetos.
-- Questão: Como novo papel é integrado sem refatorar existentes?
-- Escopo: QA Role valida: testes existem, coverage > X%, linting passa.
-- Saída: Multi-papel funcionando, padrão de Roles comprovado.
+### Prioridade 2: Artifact Quality Validation
+**Experimento:** Avaliar se conhecimento persistido é relevante e correto.
+- **Questão:** Artifacts gerados refletem realidade do projeto? São úteis para futuras análises?
+- **Escopo:** Executar Harness, revisar memory/, avaliar se descobertas são acuradas.
+- **Saída:** Entendimento de quando artifacts são valiosos vs. ruído.
 
-### Prioridade 4: Validar Escalabilidade
-**Experimento:** Dev Role em projeto grande (Next.js app 50k lines).
-- Questão: Performance, memory, artifacts gerados?
-- Escopo: Rodar pipeline em projeto real.
-- Saída: Gargalos identificados, otimizações propostas.
-
-### Prioridade 5: Artifact Validation
-**Experimento:** Critério objetivo para artifact persistência.
-- Questão: Quando um artifact merece ser persistido?
-- Escopo: Definir schema + validação de artifacts antes de persistir.
-- Saída: Memória mais limpa, menos ruído.
-
-### Prioridade 6: Integração com IA
-**Experimento:** Dev Role que usa IA para análise profunda.
-- Questão: Como integrar IA sem quebrar agnóstico de implementação?
-- Escopo: Dev Role chama IA, estrutura resultado, retorna artifacts.
-- Saída: Padrão para integração de IA validado.
-
-### Prioridade 7: Multi-Tenant
-**Experimento:** Harness processando múltiplos projetos.
-- Questão: Isolamento, recursos compartilhados, memory management?
-- Escopo: Adicionar queue de projetos.
-- Saída: Escalabilidade horizontal validada.
-
-### Prioridade 8: Persistência Persistente
-**Experimento:** Artifacts em database (Supabase) ao invés de arquivos.
-- Questão: Como escalar beyond filesystem?
-- Escopo: Substitua MemoryWriter com DB writer.
-- Saída: Flexibilidade de storage comprovada.
+### Prioridade 3: Scalability Testing
+**Experimento:** Testar em projetos grandes (10k+ LOC, centenas de arquivos).
+- **Questão:** Pipeline mantém performance? Memory usage razoável? Artifacts úteis em projetos grandes?
+- **Escopo:** Executar Harness em projeto grande, medir tempo e recursos.
+- **Saída:** Gargalos identificados, viabilidade em escala validada.
 
 ---
 

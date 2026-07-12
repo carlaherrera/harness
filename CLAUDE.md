@@ -39,6 +39,19 @@ Output: artifacts em memory/
 
 Cada componente tem responsabilidade única. Falhas são exceções. Documentação: `docs/ARCHITECTURE_DECISIONS.md` (10 ADRs).
 
+## Diretrizes de Desenvolvimento
+
+**Antes de propor novos componentes, abstrações ou camadas arquiteturais:**
+
+Verifique se existe **evidência prática suficiente** para justificar a criação.
+
+- Não especule sobre padrões futuros. Implemente quando observado em 2+ casos reais.
+- Não adicione componentes "que podem ser úteis depois". YAGNI.
+- Cada adição deve resolver um problema documentado, não um potencial.
+- Use Harness em projetos reais. Deixe os problemas emergirem. Depois, projete soluções.
+
+Padrão: observar → documentar → projetar → implementar.
+
 ## Desenvolvimento
 
 ### Scripts
