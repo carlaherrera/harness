@@ -49,74 +49,82 @@ export class DevRole {
       try {
         const parsedContext = JSON.parse(context.additionalContext);
 
-        // Handle "constraints" format
+        // Normalize all constraints into a single array
+        const unifiedConstraints: any[] = [];
+
+        // 1. From context constraints array
         if (parsedContext.constraints && Array.isArray(parsedContext.constraints)) {
-          const hasForbidConsole = parsedContext.constraints.some((c: any) => c.type === 'forbid' && c.target === 'console.log');
-          const hasAllowConsole = parsedContext.constraints.some((c: any) => c.type === 'allow' && c.target === 'console.log');
+          unifiedConstraints.push(...parsedContext.constraints);
+        }
 
-          if (hasForbidConsole && hasAllowConsole) {
-            logger.warn({ msg: 'Conflict detected: forbid vs allow console.log' })
-            artifacts.push({
-              type: 'conflict-detected',
-              description: 'Execution halted due to conflicting constraints',
-              context: 'forbid vs allow on console.log',
-              relatedComponents: ['DevRole'],
-            })
-            return {
-              role: 'dev' as RoleType,
-              executedAt: new Date(),
-              result: {
-                status: 'conflict',
-                projectName: context.project.name,
-                technologiesCount: context.technologies.length,
-                constraintsCount: context.constraints.length,
-                filesAnalyzed: context.relevantFiles.length,
-                artifactsIdentified: artifacts.length,
-              },
-              artifacts,
-            }
-          }
-
-          for (const constraint of parsedContext.constraints) {
-            if (constraint.type === 'forbid' && constraint.target === 'console.log') {
-              logger.info({ msg: 'Applying structured constraint: forbid console.log' })
-              artifacts.push({
-                type: 'violation-check',
-                description: 'console.log usage check activated (constraint format)',
-                context: `Detected via constraints array.`,
-                relatedComponents: ['DevRole'],
-              })
-            }
+        // 2. From Architect decision artifacts
+        if (parsedContext.artifacts && Array.isArray(parsedContext.artifacts)) {
+          const decisions = parsedContext.artifacts.filter((a: any) => a.type === 'decision' && a.metadata);
+          for (const decision of decisions) {
+            unifiedConstraints.push(decision.metadata);
           }
         }
 
-        // Handle "rules" format
+        // 3. From "rules" format
         if (parsedContext.rules && Array.isArray(parsedContext.rules)) {
           for (const rule of parsedContext.rules) {
             if (rule.effect === 'block' && rule.resource === 'console.log') {
-              logger.info({ msg: 'Applying structured rule: block console.log' })
-              artifacts.push({
-                type: 'violation-check',
-                description: 'console.log usage check activated (rule format)',
-                context: `Detected via rules array.`,
-                relatedComponents: ['DevRole'],
-              })
+              unifiedConstraints.push({ type: 'forbid', target: 'console.log' });
             }
           }
         }
-        // Fallback for previous string experiment
-        if (context.additionalContext.includes('Proibir uso de console.log')) {
-          logger.info({ msg: 'Applying architect decision: Proibir uso de console.log' })
 
-          // Simulate checking for violations in relevant files
-          const filesWithConsoleLog = context.relevantFiles.filter(f => f.content.includes('console.log'))
+        // Deduplicate
+        const uniqueConstraints = unifiedConstraints.filter((c, index, self) =>
+          index === self.findIndex((t) => t.type === c.type && t.target === c.target)
+        );
 
+        const hasForbidConsole = uniqueConstraints.some((c: any) => c.type === 'forbid' && c.target === 'console.log');
+        const hasAllowConsole = uniqueConstraints.some((c: any) => c.type === 'allow' && c.target === 'console.log');
+
+        if (hasForbidConsole && hasAllowConsole) {
+          logger.warn({ msg: 'Conflict detected: forbid vs allow console.log' })
           artifacts.push({
-            type: 'violation-check',
-            description: 'console.log usage check activated',
-            context: `Found ${filesWithConsoleLog.length} files violating Architect decision.`,
+            type: 'conflict-detected',
+            description: 'Execution halted due to conflicting constraints',
+            context: 'forbid vs allow on console.log',
             relatedComponents: ['DevRole'],
           })
+          return {
+            role: 'dev' as RoleType,
+            executedAt: new Date(),
+            result: {
+              status: 'conflict',
+              projectName: context.project.name,
+              technologiesCount: context.technologies.length,
+              constraintsCount: context.constraints.length,
+              filesAnalyzed: context.relevantFiles.length,
+              artifactsIdentified: artifacts.length,
+            },
+            artifacts,
+          }
+        }
+
+        for (const constraint of uniqueConstraints) {
+          if (constraint.type === 'forbid' && constraint.target === 'console.log') {
+            logger.info({ msg: 'Applying structured constraint: forbid console.log' })
+            artifacts.push({
+              type: 'violation-check',
+              description: 'console.log usage check activated (normalized)',
+              context: `Detected via normalized constraints.`,
+              relatedComponents: ['DevRole'],
+            })
+          }
+
+          if (constraint.type === 'require' && constraint.target === 'logger') {
+            logger.info({ msg: 'Applying structured constraint: require logger' })
+            artifacts.push({
+              type: 'requirement-check',
+              description: 'logger usage requirement activated (normalized)',
+              context: `Detected via normalized constraints.`,
+              relatedComponents: ['DevRole'],
+            })
+          }
         }
       } catch (e) {
         logger.error({ msg: 'Failed to process structured context', error: e instanceof Error ? e.message : String(e) })

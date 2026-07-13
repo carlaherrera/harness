@@ -110,6 +110,11 @@ Cada milestone é completo, executável, testável. Impossível terminar milesto
 
 ### ✓ Comportamento é Dirigido por Contexto Estruturado
 
+### ✓ Contrato entre Roles e Normalização (Single Source of Truth)
+O sistema unifica regras de múltiplas origens (ContextBuilder `constraints`, Architect `decisions`, formatos alternativos `rules`) em uma única fonte determinística antes da execução, eliminando duplicações e garantindo comportamento previsível.
+
+**Evidência:** DevRole e ArchitectRole leem, unificam e desduplicam `unifiedConstraints`. Uma decisão gerada pelo Architect vira obrigação executada nativamente pelo Dev (Níveis 9-11).
+
 ### ✓ Execução Interrompível por Conflito Lógico
 O sistema distingue erros de execução (runtime, parsing) de conflitos epistêmicos (regras contraditórias), interrompendo o fluxo graciosamente (fail-fast) ao detectar incoerências estruturais.
 

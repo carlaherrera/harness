@@ -10,6 +10,9 @@
 
 ## Leia Isto Primeiro (retomada em 30 segundos)
 
+**NOVA DEFINIÇÃO DO SISTEMA:** O Harness é agora um sistema que transforma múltiplas fontes de contexto (regras, artifacts de outras roles, decisões) em uma **verdade unificada**, valida essa verdade (fail-fast em conflitos), e executa comportamentos de forma determinística e governada. 
+
+
 O Harness v0 funciona: pipeline end-to-end (ProjectLoader → ContextBuilder → RoleRunner/DevRole → MemoryWriter), validado em 4 projetos reais.
 
 O último ciclo NÃO implementou features. Foi **investigação conceitual**: descobrimos que o pipeline mistura estados epistêmicos da informação (observação, inferência, interpretação, decisão) sob a palavra única "fato", e que isso causa erros reais fora do ecossistema Node.js.
