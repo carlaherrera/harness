@@ -1,5 +1,5 @@
 import { logger } from '../../utils/logger.js'
-import type { Context } from '../../core/contracts/context-builder.js'
+import type { Context, Constraint } from '../../core/contracts/context-builder.js'
 import type { RoleOutput, RoleType } from '../../core/contracts/role-runner.js'
 import type { KnowledgeArtifact } from '../../core/contracts/memory-writer.js'
 
@@ -50,18 +50,33 @@ export class DevRole {
         const parsedContext = JSON.parse(context.additionalContext);
 
         // Normalize all constraints into a single array
-        const unifiedConstraints: any[] = [];
+        const unifiedConstraints: Constraint[] = [];
 
         // 1. From context constraints array
         if (parsedContext.constraints && Array.isArray(parsedContext.constraints)) {
-          unifiedConstraints.push(...parsedContext.constraints);
+          for (const c of parsedContext.constraints) {
+            const source = c.source || 'ContextBuilder';
+            let priority = 1;
+            if (source === 'ArchitectRole') priority = 2;
+            unifiedConstraints.push({
+              type: c.type,
+              target: c.target,
+              source,
+              priority
+            });
+          }
         }
 
         // 2. From Architect decision artifacts
         if (parsedContext.artifacts && Array.isArray(parsedContext.artifacts)) {
           const decisions = parsedContext.artifacts.filter((a: any) => a.type === 'decision' && a.metadata);
           for (const decision of decisions) {
-            unifiedConstraints.push(decision.metadata);
+            unifiedConstraints.push({
+              type: decision.metadata.type,
+              target: decision.metadata.target,
+              source: decision.metadata.source || 'ArchitectRole',
+              priority: 2
+            });
           }
         }
 
@@ -69,18 +84,40 @@ export class DevRole {
         if (parsedContext.rules && Array.isArray(parsedContext.rules)) {
           for (const rule of parsedContext.rules) {
             if (rule.effect === 'block' && rule.resource === 'console.log') {
-              unifiedConstraints.push({ type: 'forbid', target: 'console.log' });
+              unifiedConstraints.push({ type: 'forbid', target: 'console.log', source: 'Unknown', priority: 1 });
             }
           }
         }
 
-        // Deduplicate
-        const uniqueConstraints = unifiedConstraints.filter((c, index, self) =>
-          index === self.findIndex((t) => t.type === c.type && t.target === c.target)
-        );
+        // Experiment: Rule Composition (Derived constraints)
+        const derivedConstraints: Constraint[] = [];
+        for (const c of unifiedConstraints) {
+          if (c.type === 'require' && c.target === 'logger') {
+            derivedConstraints.push({
+              type: 'forbid',
+              target: 'console.log',
+              source: 'derived',
+              priority: 0
+            });
+          }
+        }
+        unifiedConstraints.push(...derivedConstraints);
 
-        const hasForbidConsole = uniqueConstraints.some((c: any) => c.type === 'forbid' && c.target === 'console.log');
-        const hasAllowConsole = uniqueConstraints.some((c: any) => c.type === 'allow' && c.target === 'console.log');
+        // Deduplicate by taking the highest priority for each type+target
+        const uniqueMap = new Map<string, Constraint>();
+        for (const c of unifiedConstraints) {
+          const key = `${c.type}:${c.target}`;
+          const existing = uniqueMap.get(key);
+          const p = c.priority ?? 1;
+          const exP = existing?.priority ?? 1;
+          if (!existing || p > exP) {
+            uniqueMap.set(key, c);
+          }
+        }
+        const uniqueConstraints = Array.from(uniqueMap.values());
+
+        const hasForbidConsole = uniqueConstraints.some((c) => c.type === 'forbid' && c.target === 'console.log');
+        const hasAllowConsole = uniqueConstraints.some((c) => c.type === 'allow' && c.target === 'console.log');
 
         if (hasForbidConsole && hasAllowConsole) {
           logger.warn({ msg: 'Conflict detected: forbid vs allow console.log' })
@@ -111,7 +148,7 @@ export class DevRole {
             artifacts.push({
               type: 'violation-check',
               description: 'console.log usage check activated (normalized)',
-              context: `Detected via normalized constraints.`,
+              context: `Detected via normalized constraints (source: ${constraint.source}).`,
               relatedComponents: ['DevRole'],
             })
           }
@@ -121,7 +158,7 @@ export class DevRole {
             artifacts.push({
               type: 'requirement-check',
               description: 'logger usage requirement activated (normalized)',
-              context: `Detected via normalized constraints.`,
+              context: `Detected via normalized constraints (source: ${constraint.source}).`,
               relatedComponents: ['DevRole'],
             })
           }

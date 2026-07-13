@@ -7,6 +7,13 @@ export interface ConventionSet {
   commitConvention?: string
 }
 
+export type Constraint = {
+  type: 'forbid' | 'require' | 'allow'
+  target: string
+  source?: 'ArchitectRole' | 'ContextBuilder' | 'Unknown' | 'derived'
+  priority?: number
+}
+
 export interface FileContent {
   path: string
   name: string

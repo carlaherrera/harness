@@ -110,6 +110,11 @@ Cada milestone é completo, executável, testável. Impossível terminar milesto
 
 ### ✓ Comportamento é Dirigido por Contexto Estruturado
 
+### ✓ Composição e Prioridade Explícita de Contexto
+Regras podem derivar outras regras. O sistema deduplica via prioridade explícita (numérica), descartando a dependência da ordem de entrada. Origem da informação (proveniência) é preservada através da unificação.
+
+**Evidência:** DevRole atribui prioridade (Architect=2, Context=1, Derived=0), filtra por prioridade no map de deduplicação e salva a origem no artefato gerado (Nível 12).
+
 ### ✓ Contrato entre Roles e Normalização (Single Source of Truth)
 O sistema unifica regras de múltiplas origens (ContextBuilder `constraints`, Architect `decisions`, formatos alternativos `rules`) em uma única fonte determinística antes da execução, eliminando duplicações e garantindo comportamento previsível.
 

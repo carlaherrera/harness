@@ -120,7 +120,8 @@ export class ArchitectRole {
       relatedComponents: ['DevRole'],
       metadata: {
         type: 'forbid',
-        target: 'console.log'
+        target: 'console.log',
+        source: 'ArchitectRole'
       }
     })
 
