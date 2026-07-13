@@ -114,10 +114,31 @@ export class DevRole {
             uniqueMap.set(key, c);
           }
         }
-        const uniqueConstraints = Array.from(uniqueMap.values());
+        let uniqueConstraints = Array.from(uniqueMap.values());
 
-        const conflicts = ['console.log', 'node-assumption']
-        for (const target of conflicts) {
+        // Experiment: Explicit Conflict Resolution
+        if (parsedContext.resolutions && Array.isArray(parsedContext.resolutions)) {
+          for (const res of parsedContext.resolutions) {
+            if (res.target && res.decision) {
+              const { target, decision } = res;
+              logger.info({ msg: `Applying resolution: ${decision} for ${target}` })
+
+              // Remove all constraints for this target
+              uniqueConstraints = uniqueConstraints.filter(c => c.target !== target);
+
+              // Inject the resolved decision
+              uniqueConstraints.push({
+                type: decision,
+                target: target,
+                source: 'resolution',
+                priority: 999
+              });
+            }
+          }
+        }
+
+        const targets = [...new Set(uniqueConstraints.map(c => c.target))];
+        for (const target of targets) {
           const hasForbid = uniqueConstraints.some((c) => c.type === 'forbid' && c.target === target);
           const hasAllow = uniqueConstraints.some((c) => c.type === 'allow' && c.target === target);
 
@@ -129,6 +150,19 @@ export class DevRole {
               context: `forbid vs allow on ${target}`,
               relatedComponents: ['DevRole'],
             })
+
+            // Experiment: Conflict as output decision
+            artifacts.push({
+              type: 'decision',
+              description: 'Conflito de decisões detectado',
+              context: `forbid vs allow on ${target}`,
+              relatedComponents: ['ArchitectRole', 'DevRole'],
+              metadata: {
+                type: 'requires-resolution',
+                target: target
+              }
+            })
+
             return {
               role: 'dev' as RoleType,
               executedAt: new Date(),

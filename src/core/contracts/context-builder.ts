@@ -10,7 +10,7 @@ export interface ConventionSet {
 export type Constraint = {
   type: 'forbid' | 'require' | 'allow'
   target: string
-  source?: 'ArchitectRole' | 'ContextBuilder' | 'Unknown' | 'derived'
+  source?: 'ArchitectRole' | 'ContextBuilder' | 'Unknown' | 'derived' | 'resolution'
   priority?: number
 }
 
