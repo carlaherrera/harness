@@ -68,8 +68,8 @@ Pipeline de código permanece **inalterado**. Tudo que se produziu foi documenta
 
 | # | Oportunidade | Componente | Impacto |
 |---|-------------|-----------|---------|
-| 1 | Decisão disfarçada de observação (`npm` default) | ProjectLoader | MÁXIMO |
-| 2 | Ausência-de-obs colapsada (`[]`,`{}`) | ProjectLoader | ALTO |
+| 1 | ~~Decisão disfarçada de observação (`npm` default)~~ | ProjectLoader | RESOLVIDO |
+| 2 | ~~Ausência-de-obs colapsada (`[]`,`{}`)~~ | ProjectLoader | RESOLVIDO |
 | 3 | Interpretação na fase "coleta" (relevância) | ProjectLoader | ALTO |
 | 4 | Inflação Interpretação→Conhecimento | RoleOutput/MemoryWriter | MÉDIO-ALTO |
 | 5 | Norma de valor sem proveniência (constraints) | DevRole | MÉDIO |
