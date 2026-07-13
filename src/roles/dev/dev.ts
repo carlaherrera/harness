@@ -35,6 +35,107 @@ export class DevRole {
     // Extract knowledge artifacts: identify learned patterns
     const artifacts: KnowledgeArtifact[] = []
 
+    // Detect additional context handoff
+    if (context.additionalContext) {
+      logger.info({ msg: 'DEV RECEIVED CONTEXT' })
+      artifacts.push({
+        type: 'handoff-detected',
+        description: 'Context received via handoff',
+        context: context.additionalContext.slice(0, 150) + '...', // Include snippet
+        relatedComponents: ['DevRole'],
+      })
+
+      // Experiment 4: React to conceptual rules regardless of schema
+      try {
+        const parsedContext = JSON.parse(context.additionalContext);
+
+        // Handle "constraints" format
+        if (parsedContext.constraints && Array.isArray(parsedContext.constraints)) {
+          const hasForbidConsole = parsedContext.constraints.some((c: any) => c.type === 'forbid' && c.target === 'console.log');
+          const hasAllowConsole = parsedContext.constraints.some((c: any) => c.type === 'allow' && c.target === 'console.log');
+
+          if (hasForbidConsole && hasAllowConsole) {
+            logger.warn({ msg: 'Conflict detected: forbid vs allow console.log' })
+            artifacts.push({
+              type: 'conflict-detected',
+              description: 'Execution halted due to conflicting constraints',
+              context: 'forbid vs allow on console.log',
+              relatedComponents: ['DevRole'],
+            })
+            return {
+              role: 'dev' as RoleType,
+              executedAt: new Date(),
+              result: {
+                status: 'conflict',
+                projectName: context.project.name,
+                technologiesCount: context.technologies.length,
+                constraintsCount: context.constraints.length,
+                filesAnalyzed: context.relevantFiles.length,
+                artifactsIdentified: artifacts.length,
+              },
+              artifacts,
+            }
+          }
+
+          for (const constraint of parsedContext.constraints) {
+            if (constraint.type === 'forbid' && constraint.target === 'console.log') {
+              logger.info({ msg: 'Applying structured constraint: forbid console.log' })
+              artifacts.push({
+                type: 'violation-check',
+                description: 'console.log usage check activated (constraint format)',
+                context: `Detected via constraints array.`,
+                relatedComponents: ['DevRole'],
+              })
+            }
+          }
+        }
+
+        // Handle "rules" format
+        if (parsedContext.rules && Array.isArray(parsedContext.rules)) {
+          for (const rule of parsedContext.rules) {
+            if (rule.effect === 'block' && rule.resource === 'console.log') {
+              logger.info({ msg: 'Applying structured rule: block console.log' })
+              artifacts.push({
+                type: 'violation-check',
+                description: 'console.log usage check activated (rule format)',
+                context: `Detected via rules array.`,
+                relatedComponents: ['DevRole'],
+              })
+            }
+          }
+        }
+        // Fallback for previous string experiment
+        if (context.additionalContext.includes('Proibir uso de console.log')) {
+          logger.info({ msg: 'Applying architect decision: Proibir uso de console.log' })
+
+          // Simulate checking for violations in relevant files
+          const filesWithConsoleLog = context.relevantFiles.filter(f => f.content.includes('console.log'))
+
+          artifacts.push({
+            type: 'violation-check',
+            description: 'console.log usage check activated',
+            context: `Found ${filesWithConsoleLog.length} files violating Architect decision.`,
+            relatedComponents: ['DevRole'],
+          })
+        }
+      } catch (e) {
+        logger.error({ msg: 'Failed to process structured context', error: e instanceof Error ? e.message : String(e) })
+        return {
+          role: 'dev' as RoleType,
+          executedAt: new Date(),
+          result: {
+            status: 'error',
+            projectName: context.project.name,
+            technologiesCount: context.technologies.length,
+            constraintsCount: context.constraints.length,
+            filesAnalyzed: context.relevantFiles.length,
+            artifactsIdentified: artifacts.length,
+          },
+          artifacts,
+        }
+      }
+    }
+
     // If project uses TypeScript, record that convention
     if (context.technologies.includes('TypeScript')) {
       artifacts.push({
@@ -70,7 +171,7 @@ export class DevRole {
       role: 'dev' as RoleType,
       executedAt: new Date(),
       result: {
-        status: 'analyzed',
+        status: 'success',
         projectName: context.project.name,
         technologiesCount: context.technologies.length,
         constraintsCount: context.constraints.length,

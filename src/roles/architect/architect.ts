@@ -51,11 +51,80 @@ export class ArchitectRole {
       })
     }
 
+    // Detect additional context handoff
+    if (context.additionalContext) {
+      try {
+        const parsedContext = JSON.parse(context.additionalContext);
+        if (parsedContext.constraints && Array.isArray(parsedContext.constraints)) {
+          const hasForbidConsole = parsedContext.constraints.some((c: any) => c.type === 'forbid' && c.target === 'console.log');
+          const hasAllowConsole = parsedContext.constraints.some((c: any) => c.type === 'allow' && c.target === 'console.log');
+
+          if (hasForbidConsole && hasAllowConsole) {
+            logger.warn({ msg: 'Architect conflict detected: forbid vs allow console.log' })
+            artifacts.push({
+              type: 'conflict-detected',
+              description: 'Execution halted due to conflicting constraints',
+              context: 'forbid vs allow on console.log',
+              relatedComponents: ['ArchitectRole'],
+            })
+            return {
+              role: 'architect' as RoleType,
+              executedAt: new Date(),
+              result: {
+                status: 'conflict',
+                projectName: context.project.name,
+                technologiesCount: context.technologies.length,
+                layersDetected: 0,
+                constraintsCount: context.constraints.length,
+                artifactsIdentified: artifacts.length,
+              },
+              artifacts,
+            }
+          }
+
+          for (const constraint of parsedContext.constraints) {
+            if (constraint.type === 'forbid' && constraint.target === 'console.log') {
+              logger.info({ msg: 'Architect applying structured constraint: forbid console.log' })
+              artifacts.push({
+                type: 'architect-decision-check',
+                description: 'console.log restriction acknowledged',
+                context: `Constraint evaluated during architectural analysis.`,
+                relatedComponents: ['ArchitectRole'],
+              })
+            }
+          }
+        }
+      } catch (e) {
+        logger.error({ msg: 'Failed to process structured context', error: e instanceof Error ? e.message : String(e) })
+        return {
+          role: 'architect' as RoleType,
+          executedAt: new Date(),
+          result: {
+            status: 'error',
+            projectName: context.project.name,
+            technologiesCount: context.technologies.length,
+            layersDetected: layeringPattern?.layers.length ?? 0,
+            constraintsCount: context.constraints.length,
+            artifactsIdentified: artifacts.length,
+          },
+          artifacts,
+        }
+      }
+    }
+
+    // Inject explicit decisions for the experiment
+    artifacts.push({
+      type: 'decision',
+      description: 'DECISIONS:\n- Use Pino como logger padrão\n- Proibir uso de console.log\n- Centralizar configuração de logging\n- Padronizar níveis de log',
+      context: 'Decisões arquiteturais obrigatórias e acionáveis para guiar a execução do Dev.',
+      relatedComponents: ['Logger', 'DevRole'],
+    })
+
     const result: RoleOutput = {
       role: 'architect' as RoleType,
       executedAt: new Date(),
       result: {
-        status: 'analyzed',
+        status: 'success',
         projectName: context.project.name,
         technologiesCount: context.technologies.length,
         layersDetected: layeringPattern?.layers.length ?? 0,

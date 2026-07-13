@@ -3,10 +3,15 @@ import type { KnowledgeArtifact } from './memory-writer'
 
 export type RoleType = 'dev' | 'architect'
 
+export type ExecutionStatus = 'success' | 'conflict' | 'error'
+
 export interface RoleOutput {
   role: RoleType
   executedAt: Date
-  result: unknown
+  result: {
+    status: ExecutionStatus
+    [key: string]: unknown
+  }
   artifacts?: KnowledgeArtifact[]
 }
 

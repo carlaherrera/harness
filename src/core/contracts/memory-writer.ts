@@ -4,6 +4,11 @@ export type ArtifactType =
   | 'pattern'
   | 'convention'
   | 'learning'
+  | 'handoff-detected'
+  | 'violation-check'
+  | 'requirement-check'
+  | 'architect-decision-check'
+  | 'conflict-detected'
 
 export interface KnowledgeArtifact {
   type: ArtifactType

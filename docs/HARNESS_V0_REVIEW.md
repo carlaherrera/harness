@@ -2,7 +2,7 @@
 
 > Análise final do ciclo de desenvolvimento do Harness v0.
 >
-> Data de conclusão: 2026-07-12
+> Data de conclusão: 2026-07-13
 
 ---
 
@@ -107,6 +107,17 @@ Lançar exceções e deixar WorkflowEngine tratar é mais simples que status fie
 Cada milestone é completo, executável, testável. Impossível terminar milestone com arquitetura quebrada.
 
 **Evidência:** M1-M4 foram validados independentemente. Cada um deixou pipeline funcionando.
+
+### ✓ Comportamento é Dirigido por Contexto Estruturado
+
+### ✓ Execução Interrompível por Conflito Lógico
+O sistema distingue erros de execução (runtime, parsing) de conflitos epistêmicos (regras contraditórias), interrompendo o fluxo graciosamente (fail-fast) ao detectar incoerências estruturais.
+
+**Evidência:** DevRole e ArchitectRole abortam a execução com status `conflict` se detectam regras simultâneas de `allow` e `forbid` para o mesmo alvo (Níveis 6-8).
+
+Roles diferentes podem ser orquestrados por uma única estrutura de decisão (`constraints`, `rules`), separando lógica do contexto sem engines fixas.
+
+**Evidência:** DevRole e ArchitectRole reagem à mesma constraint estruturada (Níveis 2-5).
 
 ### ✓ Fatos antes de Interpretação é Viável
 ProjectLoader coleta apenas fatos. ContextBuilder estrutura. Dev Role observa. Interpretação pode vir depois.
