@@ -115,9 +115,13 @@ export class ArchitectRole {
     // Inject explicit decisions for the experiment
     artifacts.push({
       type: 'decision',
-      description: 'DECISIONS:\n- Use Pino como logger padrão\n- Proibir uso de console.log\n- Centralizar configuração de logging\n- Padronizar níveis de log',
-      context: 'Decisões arquiteturais obrigatórias e acionáveis para guiar a execução do Dev.',
-      relatedComponents: ['Logger', 'DevRole'],
+      description: 'Proibir uso de console.log',
+      context: 'Logging deve usar logger estruturado (Pino)',
+      relatedComponents: ['DevRole'],
+      metadata: {
+        type: 'forbid',
+        target: 'console.log'
+      }
     })
 
     const result: RoleOutput = {

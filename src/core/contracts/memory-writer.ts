@@ -15,6 +15,7 @@ export interface KnowledgeArtifact {
   description: string
   context: string
   relatedComponents?: string[]
+  metadata?: unknown
 }
 
 export interface IMemoryWriter {
