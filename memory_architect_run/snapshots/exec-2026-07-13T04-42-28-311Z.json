@@ -1,0 +1,27 @@
+{
+  "id": "exec-2026-07-13T04-42-28-311Z",
+  "timestamp": "2026-07-13T04:42:28.311Z",
+  "memoryLocation": "./memory/snapshots",
+  "projectPath": ".",
+  "objective": "Test observability features",
+  "rolesExecuted": [
+    "dev"
+  ],
+  "artifactCount": 3,
+  "artifacts": [
+    {
+      "role": "dev",
+      "filename": "convention-2026-07-13T04-42-28-309Z.md"
+    },
+    {
+      "role": "dev",
+      "filename": "convention-2026-07-13T04-42-28-310Z.md"
+    },
+    {
+      "role": "dev",
+      "filename": "learning-2026-07-13T04-42-28-310Z.md"
+    }
+  ],
+  "status": "success",
+  "durationMs": 11
+}

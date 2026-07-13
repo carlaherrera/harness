@@ -1,0 +1,36 @@
+{
+  "id": "exec-2026-07-13T04-44-39-373Z",
+  "timestamp": "2026-07-13T04:44:39.373Z",
+  "memoryLocation": "./memory/snapshots",
+  "projectPath": ".",
+  "objective": "Test multi-role",
+  "rolesExecuted": [
+    "dev",
+    "architect"
+  ],
+  "artifactCount": 5,
+  "artifacts": [
+    {
+      "role": "dev",
+      "filename": "convention-2026-07-13T04-44-39-368Z.md"
+    },
+    {
+      "role": "dev",
+      "filename": "convention-2026-07-13T04-44-39-369Z.md"
+    },
+    {
+      "role": "dev",
+      "filename": "learning-2026-07-13T04-44-39-369Z.md"
+    },
+    {
+      "role": "architect",
+      "filename": "learning-2026-07-13T04-44-39-372Z.md"
+    },
+    {
+      "role": "architect",
+      "filename": "learning-2026-07-13T04-44-39-372Z.md"
+    }
+  ],
+  "status": "success",
+  "durationMs": 14
+}

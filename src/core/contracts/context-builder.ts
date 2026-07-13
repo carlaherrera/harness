@@ -22,6 +22,7 @@ export interface Context {
   constraints: string[]
   currentTask: string
   conventions: ConventionSet
+  additionalContext?: string
 }
 
 export interface IContextBuilder {

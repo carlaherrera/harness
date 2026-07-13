@@ -1,0 +1,9 @@
+{
+  "id": "know-convention-2026-07-13T04-43-52-705Z",
+  "filename": "convention-2026-07-13T04-43-52-705Z.md",
+  "type": "convention",
+  "description": "Project uses pnpm as package manager",
+  "context": "Detected pnpm-lock.yaml. Implies strict dependency resolution.",
+  "timestamp": "2026-07-13T04:43:52.705Z",
+  "source": "execution"
+}

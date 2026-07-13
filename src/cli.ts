@@ -15,10 +15,15 @@ program
   .command('dev [projectPath]')
   .description('Run the Dev role on a project')
   .option('-o, --objective <objective>', 'Objective for the Dev role', 'Analyze project structure')
+  .option('--artifact <filename>', 'Load previous artifact as context (manual knowledge reuse)')
   .action(async (projectPath = process.cwd(), options) => {
     try {
       const engine = new WorkflowEngine()
-      await engine.execute(projectPath, options.objective, 'dev')
+      if (options.artifact) {
+        await engine.executeWithContext(projectPath, options.objective, 'dev', options.artifact)
+      } else {
+        await engine.execute(projectPath, options.objective, 'dev')
+      }
     } catch (error) {
       process.exit(1)
     }
@@ -28,10 +33,15 @@ program
   .command('architect [projectPath]')
   .description('Run the Architect role on a project')
   .option('-o, --objective <objective>', 'Objective for the Architect role', 'Analyze project architecture')
+  .option('--artifact <filename>', 'Load previous artifact as context (manual knowledge reuse)')
   .action(async (projectPath = process.cwd(), options) => {
     try {
       const engine = new WorkflowEngine()
-      await engine.execute(projectPath, options.objective, 'architect')
+      if (options.artifact) {
+        await engine.executeWithContext(projectPath, options.objective, 'architect', options.artifact)
+      } else {
+        await engine.execute(projectPath, options.objective, 'architect')
+      }
     } catch (error) {
       process.exit(1)
     }

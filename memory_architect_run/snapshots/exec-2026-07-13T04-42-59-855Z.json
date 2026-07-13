@@ -1,0 +1,27 @@
+{
+  "id": "exec-2026-07-13T04-42-59-855Z",
+  "timestamp": "2026-07-13T04:42:59.855Z",
+  "memoryLocation": "./memory/snapshots",
+  "projectPath": ".",
+  "objective": "Use previous convention artifact",
+  "rolesExecuted": [
+    "dev"
+  ],
+  "artifactCount": 3,
+  "artifacts": [
+    {
+      "role": "dev",
+      "filename": "convention-2026-07-13T04-42-59-853Z.md"
+    },
+    {
+      "role": "dev",
+      "filename": "convention-2026-07-13T04-42-59-854Z.md"
+    },
+    {
+      "role": "dev",
+      "filename": "learning-2026-07-13T04-42-59-854Z.md"
+    }
+  ],
+  "status": "success",
+  "durationMs": 10
+}

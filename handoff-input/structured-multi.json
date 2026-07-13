@@ -1,0 +1,12 @@
+{
+  "constraints": [
+    {
+      "type": "forbid",
+      "target": "console.log"
+    },
+    {
+      "type": "require",
+      "target": "logger"
+    }
+  ]
+}

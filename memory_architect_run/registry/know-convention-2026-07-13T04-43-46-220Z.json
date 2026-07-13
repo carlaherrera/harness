@@ -1,0 +1,9 @@
+{
+  "id": "know-convention-2026-07-13T04-43-46-220Z",
+  "filename": "convention-2026-07-13T04-43-46-220Z.md",
+  "type": "convention",
+  "description": "Project uses TypeScript for type safety",
+  "context": "Detected in package.json and tsconfig.json. Implies strict type checking enabled.",
+  "timestamp": "2026-07-13T04:43:46.220Z",
+  "source": "execution"
+}
