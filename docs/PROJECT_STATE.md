@@ -38,6 +38,8 @@ Pipeline de código permanece **inalterado**. Tudo que se produziu foi documenta
 | Validação incremental por milestone | ADR-007 | FIRME |
 
 ### Validado (evidência prática produzida)
+| ProjectLoader limpo de inferências | Observação separada de inferência (Radar #1, #2) (Nível 13) |
+| Interpretação plural e conflitante coexistente | Architect gera múltiplas visões do mesmo sinal (Nível 14) |
 
 | Achado | Evidência |
 |--------|-----------|

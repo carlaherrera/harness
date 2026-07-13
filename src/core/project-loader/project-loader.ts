@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import { logger } from '../../utils/logger.js'
-import type { ProjectMetadata, IProjectLoader, DirectoryStructure, RelevantFiles, ScriptMap } from '../contracts/project-loader.js'
+import type { ProjectMetadata, IProjectLoader, DirectoryStructure, RelevantFiles, ScriptMap, Observation } from '../contracts/project-loader.js'
 
 export class ProjectLoader implements IProjectLoader {
   async load(projectPath: string): Promise<ProjectMetadata> {
@@ -9,10 +9,19 @@ export class ProjectLoader implements IProjectLoader {
 
     const structure = await this.buildDirectoryStructure(projectPath)
     const files = await this.findRelevantFiles(projectPath)
+
+    // Switch to pure observation: gather signals, do not infer meaning yet
+    const observations = await this.gatherObservations(projectPath, files)
+
+    // Stop assuming npm. If there's a lockfile, return it. Otherwise null.
     const packageManager = await this.detectPackageManager(projectPath)
+
     const scripts = await this.extractScripts(projectPath, files)
-    const technologies = await this.detectTechnologies(projectPath, files)
-    const mainFramework = this.detectMainFramework(technologies)
+
+    // Clear out inferencing completely: just empty arrays
+    const technologies: string[] = []
+    const mainFramework = undefined
+
     const name = path.basename(projectPath)
 
     const result: ProjectMetadata = {
@@ -24,6 +33,7 @@ export class ProjectLoader implements IProjectLoader {
       packageManager,
       scripts,
       mainFramework,
+      observations,
     }
 
     logger.info({
@@ -33,6 +43,7 @@ export class ProjectLoader implements IProjectLoader {
       packageManager,
       scriptsCount: Object.keys(scripts).length,
       filesFound: Object.keys(files).length,
+      observationsCount: observations.length
     })
 
     logger.debug({
@@ -40,9 +51,25 @@ export class ProjectLoader implements IProjectLoader {
       structure: Object.keys(structure).length > 0 ? Object.keys(structure).slice(0, 10) : 'empty',
       files,
       scripts: Object.keys(scripts),
+      observations
     })
 
     return result
+  }
+
+  private async gatherObservations(projectPath: string, files: RelevantFiles): Promise<Observation[]> {
+    const observations: Observation[] = []
+
+    const possibleSignals = ['composer.json', 'wp-config.php', 'package.json', 'index.php']
+
+    for (const signal of possibleSignals) {
+      try {
+        await fs.access(path.join(projectPath, signal))
+        observations.push({ type: 'file', value: signal })
+      } catch {}
+    }
+
+    return observations
   }
 
   private async buildDirectoryStructure(
@@ -110,7 +137,7 @@ export class ProjectLoader implements IProjectLoader {
 
   private async detectPackageManager(
     projectPath: string
-  ): Promise<'npm' | 'pnpm' | 'yarn'> {
+  ): Promise<'npm' | 'pnpm' | 'yarn' | null> {
     const lockFiles = ['pnpm-lock.yaml', 'yarn.lock', 'package-lock.json']
 
     for (const lockFile of lockFiles) {
@@ -126,7 +153,7 @@ export class ProjectLoader implements IProjectLoader {
       }
     }
 
-    return 'npm'
+    return null // Do not assume npm
   }
 
   private async extractScripts(
@@ -158,8 +185,28 @@ export class ProjectLoader implements IProjectLoader {
   ): Promise<string[]> {
     const technologies: Set<string> = new Set()
 
-    // Check package.json
+    // Multi-signal detection
+
+    // 1. Check for PHP (composer.json or index.php in a typical PHP app)
+    try {
+      await fs.access(path.join(projectPath, 'composer.json'))
+      technologies.add('PHP')
+    } catch {
+      try {
+        await fs.access(path.join(projectPath, 'index.php'))
+        technologies.add('PHP')
+      } catch {}
+    }
+
+    // 2. Check for WordPress
+    try {
+      await fs.access(path.join(projectPath, 'wp-config.php'))
+      technologies.add('WordPress')
+    } catch {}
+
+    // 3. Check package.json for Node.js ecosystem
     if (files.packageJson) {
+      technologies.add('Node.js')
       try {
         const pkgPath = path.join(projectPath, files.packageJson)
         const content = await fs.readFile(pkgPath, 'utf-8')

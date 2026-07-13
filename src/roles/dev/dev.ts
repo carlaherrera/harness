@@ -116,29 +116,32 @@ export class DevRole {
         }
         const uniqueConstraints = Array.from(uniqueMap.values());
 
-        const hasForbidConsole = uniqueConstraints.some((c) => c.type === 'forbid' && c.target === 'console.log');
-        const hasAllowConsole = uniqueConstraints.some((c) => c.type === 'allow' && c.target === 'console.log');
+        const conflicts = ['console.log', 'node-assumption']
+        for (const target of conflicts) {
+          const hasForbid = uniqueConstraints.some((c) => c.type === 'forbid' && c.target === target);
+          const hasAllow = uniqueConstraints.some((c) => c.type === 'allow' && c.target === target);
 
-        if (hasForbidConsole && hasAllowConsole) {
-          logger.warn({ msg: 'Conflict detected: forbid vs allow console.log' })
-          artifacts.push({
-            type: 'conflict-detected',
-            description: 'Execution halted due to conflicting constraints',
-            context: 'forbid vs allow on console.log',
-            relatedComponents: ['DevRole'],
-          })
-          return {
-            role: 'dev' as RoleType,
-            executedAt: new Date(),
-            result: {
-              status: 'conflict',
-              projectName: context.project.name,
-              technologiesCount: context.technologies.length,
-              constraintsCount: context.constraints.length,
-              filesAnalyzed: context.relevantFiles.length,
-              artifactsIdentified: artifacts.length,
-            },
-            artifacts,
+          if (hasForbid && hasAllow) {
+            logger.warn({ msg: `Conflict detected: forbid vs allow ${target}` })
+            artifacts.push({
+              type: 'conflict-detected',
+              description: 'Execution halted due to conflicting constraints',
+              context: `forbid vs allow on ${target}`,
+              relatedComponents: ['DevRole'],
+            })
+            return {
+              role: 'dev' as RoleType,
+              executedAt: new Date(),
+              result: {
+                status: 'conflict',
+                projectName: context.project.name,
+                technologiesCount: context.technologies.length,
+                constraintsCount: context.constraints.length,
+                filesAnalyzed: context.relevantFiles.length,
+                artifactsIdentified: artifacts.length,
+              },
+              artifacts,
+            }
           }
         }
 
@@ -158,6 +161,16 @@ export class DevRole {
             artifacts.push({
               type: 'requirement-check',
               description: 'logger usage requirement activated (normalized)',
+              context: `Detected via normalized constraints (source: ${constraint.source}).`,
+              relatedComponents: ['DevRole'],
+            })
+          }
+
+          if (constraint.type === 'forbid' && constraint.target === 'node-assumption') {
+            logger.info({ msg: 'Applying structured constraint: forbid node-assumption' })
+            artifacts.push({
+              type: 'violation-check',
+              description: 'node-assumption usage check activated (normalized)',
               context: `Detected via normalized constraints (source: ${constraint.source}).`,
               relatedComponents: ['DevRole'],
             })

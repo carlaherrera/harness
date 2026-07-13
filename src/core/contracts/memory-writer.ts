@@ -4,6 +4,7 @@ export type ArtifactType =
   | 'pattern'
   | 'convention'
   | 'learning'
+  | 'inference'
   | 'handoff-detected'
   | 'violation-check'
   | 'requirement-check'

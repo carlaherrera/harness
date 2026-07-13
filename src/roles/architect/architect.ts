@@ -51,6 +51,58 @@ export class ArchitectRole {
       })
     }
 
+    // Infer technologies from observations
+    if (context.project.observations) {
+      const hasIndexPhp = context.project.observations.some(
+        (obs) => obs.type === 'file' && obs.value === 'index.php'
+      )
+
+      if (hasIndexPhp) {
+        logger.info({ msg: 'Generated multiple inferences from observations' })
+
+        artifacts.push({
+          type: 'inference',
+          description: 'Project likely uses PHP',
+          context: 'Detected index.php in root',
+          relatedComponents: ['ArchitectRole'],
+        })
+
+        // Experiment: Conflicting inference
+        artifacts.push({
+          type: 'inference',
+          description: 'index.php may be a legacy artifact',
+          context: 'Single entrypoint file does not guarantee active PHP usage',
+          relatedComponents: ['ArchitectRole'],
+        })
+
+        // Experiment: Inference -> Decision 1
+        artifacts.push({
+          type: 'decision',
+          description: 'Evitar qualquer suposição de Node.js',
+          context: 'Based on: Project likely uses PHP',
+          relatedComponents: ['DevRole'],
+          metadata: {
+            type: 'forbid',
+            target: 'node-assumption',
+            source: 'ArchitectRole'
+          }
+        })
+
+        // Experiment: Inference -> Decision 2 (Conflict)
+        artifacts.push({
+          type: 'decision',
+          description: 'Permitir análise de Node.js',
+          context: 'Based on: index.php may be a legacy artifact',
+          relatedComponents: ['DevRole'],
+          metadata: {
+            type: 'allow',
+            target: 'node-assumption',
+            source: 'ArchitectRole'
+          }
+        })
+      }
+    }
+
     // Detect additional context handoff
     if (context.additionalContext) {
       try {

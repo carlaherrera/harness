@@ -129,6 +129,16 @@ Roles diferentes podem ser orquestrados por uma única estrutura de decisão (`c
 
 **Evidência:** DevRole e ArchitectRole reagem à mesma constraint estruturada (Níveis 2-5).
 
+### ✓ Pluralidade Interpretativa e Conflitos Derivados
+O sistema não exige consenso forçado na camada de interpretação. Uma única observação bruta (`index.php`) pode gerar inferências contraditórias ("É PHP" vs "É legado"). Quando inferências geram decisões contraditórias, o motor de execução base detecta o conflito final e aborta (fail-fast), protegendo a integridade.
+
+**Evidência:** ArchitectRole suporta múltiplas `inference` do mesmo fato. Se convertidas em `decision` antagônicas, o DevRole captura no fail-fast genérico de regras sem necessidade de lógica extra.
+
+### ✓ Coleta Bruta (Observação Pura)
+ProjectLoader não deve inferir dados ausentes. Ausência de sinais Node.js não equivale a "nada detectado". Sinais neutros (arquivos) são coletados sem interpretação, delegando o significado aos Roles.
+
+**Evidência:** ProjectLoader expõe array `observations` e `packageManager: null`, removendo falsos positivos de `npm` defaults em projetos PHP.
+
 ### ✓ Fatos antes de Interpretação é Viável
 ProjectLoader coleta apenas fatos. ContextBuilder estrutura. Dev Role observa. Interpretação pode vir depois.
 
